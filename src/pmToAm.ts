@@ -23,7 +23,6 @@ export default function (
   path: Prop[],
 ) {
   let unappliedMarks: AddMarkStep[] = []
-
   function flushMarks() {
     if (unappliedMarks.length > 0) {
       applyAddMarkSteps(adapter, spans, unappliedMarks, doc, path)
@@ -259,10 +258,12 @@ function reconcileMarks(
       !currentMarkNames.has(markName) ||
       newMarks[markName] !== currentMarks[markName]
     ) {
+      const markType = adapter.schema.marks[markName];
+      const expand = markType.spec.inclusive ? "both" : "none"
       automerge.mark(
         doc,
         path,
-        { start: index, end: index + length, expand: "both" },
+        { start: index, end: index + length, expand },
         markName,
         newMarks[markName],
       )
@@ -276,10 +277,12 @@ function reconcileMarks(
       continue
     }
     if (!newMarkNames.has(markName)) {
+      const markType = adapter.schema.marks[markName];
+      const expand = markType.spec.inclusive ? "both" : "none"
       automerge.unmark(
         doc,
         path,
-        { start: index, end: index + length, expand: "both" },
+        { start: index, end: index + length, expand },
         markName,
       )
     }
